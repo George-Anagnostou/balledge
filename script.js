@@ -131,9 +131,7 @@ class SportsChainGame {
             // Cache the result
             this.playerCache.set(cacheKey, player);
             this.processPlayer(player);
-            // Reset strikes on valid guess
-            this.strikes = 0;
-            this.updateStrikes();
+            // Don't reset strikes on valid guess - they persist across the chain
         } catch (error) {
             console.error('Error searching for player:', error);
             this.strike('Error searching for player. Please try again.');
