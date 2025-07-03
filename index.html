@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Player Chain Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏈 Sports Player Chain 🏀</h1>
+            <p class="subtitle">Connect players by matching letters!</p>
+        </header>
+
+        <div class="game-area">
+            <div class="input-section">
+                <h2>Enter a Player Name</h2>
+                <div class="input-group">
+                    <input type="text" id="playerInput" placeholder="e.g., LeBron James, Tom Brady..." autocomplete="off">
+                    <button id="submitBtn">Submit</button>
+                </div>
+                <p class="hint" id="hint">Start with any player name!</p>
+            </div>
+
+            <div class="player-display" id="playerDisplay" style="display: none;">
+                <div class="player-card">
+                    <div class="player-image">
+                        <img id="playerImage" src="" alt="Player">
+                        <div class="placeholder" id="placeholder">No image available</div>
+                    </div>
+                    <div class="player-info">
+                        <h3 id="playerName"></h3>
+                        <p id="playerTeam"></p>
+                        <p id="playerPosition"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-stats">
+                <div class="stat">
+                    <span class="stat-label">Chain Length:</span>
+                    <span class="stat-value" id="chainLength">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Last Letter:</span>
+                    <span class="stat-value" id="lastLetter">-</span>
+                </div>
+            </div>
+
+            <div class="chain-history" id="chainHistory">
+                <h3>Player Chain</h3>
+                <div class="chain-list" id="chainList"></div>
+            </div>
+        </div>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 

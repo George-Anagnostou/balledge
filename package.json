@@ -1,0 +1,15 @@
+{
+  "name": "balledge",
+  "version": "1.0.0",
+  "description": "Sports Player Chain Game",
+  "main": "index.js",
+  "scripts": {
+    "start:frontend": "live-server --port=3000 --no-browser",
+    "start:backend": "cd server && node index.js",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2",
+    "live-server": "^1.2.2"
+  }
+}
