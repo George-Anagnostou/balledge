@@ -6,29 +6,7 @@ class SportsChainGame {
         this.playerCache = new Map(); // Cache API results
         this.strikes = 0;
         this.maxStrikes = 3;
-        this.fallbackPlayers = window.config ? window.config.fallbackPlayers : {
-            'mike trout': {
-                name: 'Mike Trout',
-                team: 'Los Angeles Angels',
-                position: 'Center Fielder',
-                sport: 'Baseball',
-                image: 'https://via.placeholder.com/200x200/764ba2/ffffff?text=Mike+Trout'
-            },
-            'aaron judge': {
-                name: 'Aaron Judge',
-                team: 'New York Yankees',
-                position: 'Right Fielder',
-                sport: 'Baseball',
-                image: 'https://via.placeholder.com/200x200/764ba2/ffffff?text=Aaron+Judge'
-            },
-            'tom brady': {
-                name: 'Tom Brady',
-                team: 'Tampa Bay Buccaneers',
-                position: 'Quarterback',
-                sport: 'Football',
-                image: 'https://via.placeholder.com/200x200/f093fb/ffffff?text=Tom+Brady'
-            }
-        };
+        this.selectedSport = 'nba'; // Default sport
         this.initializeGame();
     }
     
@@ -46,14 +24,11 @@ class SportsChainGame {
         this.chainLength = document.getElementById('chainLength');
         this.lastLetterDisplay = document.getElementById('lastLetter');
         this.chainList = document.getElementById('chainList');
-        // Add strikes display
         this.strikesDisplay = document.getElementById('strikesDisplay');
-        if (!this.strikesDisplay) {
-            this.strikesDisplay = document.createElement('div');
-            this.strikesDisplay.id = 'strikesDisplay';
-            this.strikesDisplay.className = 'strikes';
-            this.chainLength.parentNode.parentNode.appendChild(this.strikesDisplay);
-        }
+        
+        // Set up sport selection
+        this.setupSportSelection();
+        
         this.submitBtn.addEventListener('click', () => this.handleSubmit());
         this.playerInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -64,6 +39,17 @@ class SportsChainGame {
         this.updateDisplay();
         this.updateHint();
         this.updateStrikes();
+    }
+    
+    setupSportSelection() {
+        const radioButtons = document.querySelectorAll('input[name="sport"]');
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.selectedSport = e.target.value;
+                this.updateHint();
+                console.log(`Sport changed to: ${this.selectedSport.toUpperCase()}`);
+            });
+        });
     }
     
     async handleSubmit() {
@@ -103,41 +89,94 @@ class SportsChainGame {
             this.strike('Please enter both a first and last name.');
             return;
         }
-        this.showMessage('Searching for player...', 'info');
+        
+        this.showMessage(`Searching for ${this.selectedSport.toUpperCase()} player...`, 'info');
         this.submitBtn.disabled = true;
+        
         try {
             // Check cache first
-            const cacheKey = input.toLowerCase();
+            const cacheKey = `${this.selectedSport}-${input.toLowerCase()}`;
             if (this.playerCache.has(cacheKey)) {
                 const player = this.playerCache.get(cacheKey);
                 this.processPlayer(player);
                 return;
             }
-            // Try NBA API (balldontlie)
-            let player = await this.searchBasketballPlayer(input);
-            if (!player) {
-                // Fallback to mock data for MLB/NFL
-                player = this.searchFallbackPlayer(input);
-            }
+            
+            // Search the selected sport's API
+            const player = await this.searchPlayer(input, this.selectedSport);
             if (!player) {
                 this.strike('Player not found! Try a different name or check spelling.');
                 return;
             }
+            
             // Check if player is already in the chain
             if (this.chain.some(p => p.name.toLowerCase() === player.name.toLowerCase())) {
                 this.strike('This player is already in the chain!');
                 return;
             }
+            
             // Cache the result
             this.playerCache.set(cacheKey, player);
             this.processPlayer(player);
-            // Don't reset strikes on valid guess - they persist across the chain
+            
         } catch (error) {
             console.error('Error searching for player:', error);
             this.strike('Error searching for player. Please try again.');
         } finally {
             this.submitBtn.disabled = false;
         }
+    }
+    
+    async searchPlayer(query, sport) {
+        try {
+            // Split the input into first and last name
+            const [firstName, ...rest] = query.trim().split(/\s+/);
+            const lastName = rest.join(' ');
+            if (!firstName || !lastName) return null;
+            
+            // Call the appropriate API endpoint based on sport
+            const url = `http://localhost:3001/api/players?sport=${encodeURIComponent(sport)}&first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}`;
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                console.error(`${sport.toUpperCase()} API request failed:`, response.status);
+                return null;
+            }
+            
+            const data = await response.json();
+            if (data.data && data.data.length > 0) {
+                const player = data.data[0]; // Get first match
+                return {
+                    name: `${player.first_name} ${player.last_name}`,
+                    team: player.team ? player.team.name : 'Unknown Team',
+                    position: player.position || 'Unknown Position',
+                    sport: this.getSportDisplayName(sport),
+                    image: this.getPlayerImage(player.first_name, player.last_name, sport)
+                };
+            }
+        } catch (error) {
+            console.error(`${sport.toUpperCase()} API error:`, error);
+        }
+        return null;
+    }
+    
+    getSportDisplayName(sport) {
+        const sportNames = {
+            'nba': 'Basketball (NBA)',
+            'mlb': 'Baseball (MLB)',
+            'nfl': 'Football (NFL)'
+        };
+        return sportNames[sport] || sport.toUpperCase();
+    }
+    
+    getPlayerImage(firstName, lastName, sport) {
+        // For now, we'll use placeholder images
+        const colors = {
+            nba: '667eea',
+            mlb: '764ba2',
+            nfl: 'f093fb'
+        };
+        return `https://via.placeholder.com/200x200/${colors[sport]}/ffffff?text=${firstName}+${lastName}`;
     }
     
     processPlayer(player) {
@@ -152,51 +191,6 @@ class SportsChainGame {
         // Clear input and update hint
         this.playerInput.value = '';
         this.updateHint();
-    }
-    
-    async searchBasketballPlayer(query) {
-        try {
-            // Split the input into first and last name
-            const [firstName, ...rest] = query.trim().split(/\s+/);
-            const lastName = rest.join(' ');
-            if (!firstName || !lastName) return null;
-            // Use the backend proxy with first_name and last_name
-            const url = `http://localhost:3001/api/players?first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Basketball API request failed');
-            const data = await response.json();
-            if (data.data && data.data.length > 0) {
-                const player = data.data[0]; // Get first match
-                return {
-                    name: `${player.first_name} ${player.last_name}`,
-                    team: player.team ? player.team.name : 'Unknown Team',
-                    position: player.position || 'Unknown Position',
-                    sport: 'Basketball (NBA)',
-                    image: this.getPlayerImage(player.first_name, player.last_name, 'basketball')
-                };
-            }
-        } catch (error) {
-            console.error('Basketball API error:', error);
-        }
-        return null;
-    }
-    
-    searchFallbackPlayer(query) {
-        const queryLower = query.toLowerCase();
-        const playerKey = Object.keys(this.fallbackPlayers).find(key => 
-            key.includes(queryLower) || queryLower.includes(key)
-        );
-        return playerKey ? this.fallbackPlayers[playerKey] : null;
-    }
-    
-    getPlayerImage(firstName, lastName, sport) {
-        // For now, we'll use placeholder images
-        const colors = {
-            basketball: '667eea',
-            baseball: '764ba2',
-            football: 'f093fb'
-        };
-        return `https://via.placeholder.com/200x200/${colors[sport]}/ffffff?text=${firstName}+${lastName}`;
     }
     
     displayPlayer(player) {
@@ -217,6 +211,7 @@ class SportsChainGame {
     updateDisplay() {
         this.chainLength.textContent = this.chain.length;
         this.lastLetterDisplay.textContent = this.lastLetter ? this.lastLetter.toUpperCase() : '-';
+        
         // Update chain history
         this.chainList.innerHTML = '';
         this.chain.forEach((player, index) => {
@@ -228,11 +223,13 @@ class SportsChainGame {
     }
     
     updateHint() {
-        this.hint.textContent = 'NBA players are live (real-time). MLB/NFL are mock data.';
+        const sportName = this.getSportDisplayName(this.selectedSport);
+        this.hint.textContent = `Searching ${sportName} players from balldontlie.io`;
+        
         if (this.chain.length > 0) {
             const lastPlayer = this.chain[this.chain.length - 1];
             const lastLetter = this.getLastName(lastPlayer.name).charAt(0).toUpperCase();
-            this.hint.textContent += ` Next player\'s first name must start with "${lastLetter}".`;
+            this.hint.textContent += `. Next player's first name must start with "${lastLetter}".`;
         }
     }
     

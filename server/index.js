@@ -1,40 +1,71 @@
-require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Allow CORS for local frontend development
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-// Proxy endpoint for player search by first_name and last_name
-app.get('/api/players', async (req, res) => {
-  const { first_name, last_name } = req.query;
-  if (!first_name || !last_name) {
-    return res.status(400).json({ error: 'Missing first_name or last_name parameter' });
-  }
-  const url = `https://api.balldontlie.io/v1/players?first_name=${encodeURIComponent(first_name)}&last_name=${encodeURIComponent(last_name)}&per_page=100`;
-  try {
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${process.env.BALLDONTLIE_API_KEY}`
-      }
+// API key from environment variables
+const API_KEY = process.env.BALLDONTLIE_API_KEY;
+
+// Sport-specific API endpoints
+const API_ENDPOINTS = {
+    nba: 'https://api.balldontlie.io/v1/players',
+    mlb: 'https://api.balldontlie.io/mlb/v1/players',
+    nfl: 'https://api.balldontlie.io/nfl/v1/players'
+};
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        message: 'Sports Player API is running',
+        supported_sports: ['NBA', 'MLB', 'NFL'],
+        api_source: 'balldontlie.io'
     });
-    const data = await response.json();
-    if (!response.ok) {
-      console.error('balldontlie error:', data);
-      return res.status(response.status).json({ error: 'balldontlie error', details: data });
-    }
-    res.status(response.status).json(data);
-  } catch (err) {
-    console.error('Proxy error:', err);
-    res.status(500).json({ error: 'Proxy error', details: err.message });
-  }
 });
 
+// Unified player search endpoint
+app.get('/api/players', async (req, res) => {
+    const { sport, first_name, last_name } = req.query;
+    if (!sport || !first_name || !last_name) {
+        return res.status(400).json({ error: 'Missing required parameters: first_name, last_name, and sport are required' });
+    }
+
+    const baseUrl = API_ENDPOINTS[sport.toLowerCase()];
+    if (!baseUrl) {
+        return res.status(400).json({ error: 'Invalid sport' });
+    }
+
+    // Build query string with first_name and last_name
+    const params = new URLSearchParams({
+        first_name,
+        last_name,
+        per_page: 100
+    });
+    const url = `${baseUrl}?${params.toString()}`;
+
+    const headers = {};
+    if (API_KEY) {
+        headers['Authorization'] = API_KEY;
+    }
+
+    try {
+        const response = await fetch(url, { headers });
+        const data = await response.json();
+        res.status(response.status).json(data);
+    } catch (err) {
+        res.status(500).json({ error: 'Upstream API error', details: err.message });
+    }
+});
+
+// Start server
 app.listen(PORT, () => {
-  console.log(`Proxy server running on http://localhost:${PORT}`);
+    console.log(`Unified Sports API server running on http://localhost:${PORT}`);
+    console.log(`Supported sports: NBA, MLB, NFL`);
+    console.log(`API source: balldontlie.io`);
 }); 

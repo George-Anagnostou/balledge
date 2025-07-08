@@ -5,59 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sports Player Chain Game</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🏈 Sports Player Chain 🏀</h1>
-            <p class="subtitle">Connect players by matching letters!</p>
-        </header>
-
+        <h1>🏀⚾🏈 Sports Player Chain Game</h1>
+        <p class="subtitle">Connect players by matching the last letter of their last name to the first letter of the next player's first name!</p>
+        
         <div class="game-area">
             <div class="input-section">
-                <h2>Enter a Player Name</h2>
-                <div class="input-group">
-                    <input type="text" id="playerInput" placeholder="e.g., LeBron James, Tom Brady..." autocomplete="off">
-                    <button id="submitBtn">Submit</button>
-                </div>
-                <p class="hint" id="hint">Start with any player name!</p>
-            </div>
-
-            <div class="player-display" id="playerDisplay" style="display: none;">
-                <div class="player-card">
-                    <div class="player-image">
-                        <img id="playerImage" src="" alt="Player">
-                        <div class="placeholder" id="placeholder">No image available</div>
+                <div class="sport-selection">
+                    <h3>Select Sport:</h3>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="sport" value="nba" checked>
+                            <span class="radio-custom"></span>
+                            🏀 NBA
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="sport" value="mlb">
+                            <span class="radio-custom"></span>
+                            ⚾ MLB
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="sport" value="nfl">
+                            <span class="radio-custom"></span>
+                            🏈 NFL
+                        </label>
                     </div>
-                    <div class="player-info">
-                        <h3 id="playerName"></h3>
-                        <p id="playerTeam"></p>
-                        <p id="playerPosition"></p>
+                </div>
+                
+                <div class="player-input-group">
+                    <input type="text" id="playerInput" placeholder="Enter player name (e.g., LeBron James)" maxlength="50">
+                    <button id="submitBtn">Add Player</button>
+                </div>
+                
+                <div id="message" class="message" style="display: none;"></div>
+            </div>
+            
+            <div class="game-info">
+                <div class="info-row">
+                    <div class="info-item">
+                        <span class="label">Chain Length:</span>
+                        <span id="chainLength">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Last Letter:</span>
+                        <span id="lastLetter">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Strikes:</span>
+                        <span id="strikesDisplay">⭕⭕⭕</span>
                     </div>
                 </div>
             </div>
-
-            <div class="game-stats">
-                <div class="stat">
-                    <span class="stat-label">Chain Length:</span>
-                    <span class="stat-value" id="chainLength">0</span>
+            
+            <div id="playerDisplay" class="player-display" style="display: none;">
+                <div class="player-image-container">
+                    <img id="playerImage" src="" alt="Player" style="display: none;">
+                    <div id="placeholder" class="placeholder">🏀</div>
                 </div>
-                <div class="stat">
-                    <span class="stat-label">Last Letter:</span>
-                    <span class="stat-value" id="lastLetter">-</span>
+                <div class="player-info">
+                    <h3 id="playerName"></h3>
+                    <p id="playerTeam"></p>
+                    <p id="playerPosition"></p>
                 </div>
             </div>
-
-            <div class="chain-history" id="chainHistory">
-                <h3>Player Chain</h3>
-                <div class="chain-list" id="chainList"></div>
+            
+            <div class="chain-history">
+                <h3>Chain History:</h3>
+                <div id="chainList" class="chain-list"></div>
             </div>
         </div>
-
-        <div class="message" id="message"></div>
+        
+        <div class="hint-section">
+            <p id="hint">Start by entering any player's name to begin the chain!</p>
+        </div>
     </div>
-
-    <script src="config.js"></script>
+    
     <script src="script.js"></script>
 </body>
 </html> 
