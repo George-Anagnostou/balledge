@@ -1,3 +1,5 @@
+const API_BASE_URL = window.APP_CONFIG.API_BASE_URL;
+
 class SportsChainGame {
     constructor() {
         this.chain = [];
@@ -135,7 +137,7 @@ class SportsChainGame {
             if (!firstName || !lastName) return null;
             
             // Call the appropriate API endpoint based on sport
-            const url = `http://localhost:3001/api/players?sport=${encodeURIComponent(sport)}&first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}`;
+            const url = `${API_BASE_URL}/api/players?sport=${encodeURIComponent(sport)}&first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}`;
             const response = await fetch(url);
             
             if (!response.ok) {
