@@ -3,6 +3,16 @@ class SportsChainGame {
         this.chain = [];
         this.currentPlayer = null;
         this.lastLetter = null;
+<<<<<<< HEAD
+        
+        // Mock data for now - we'll replace this with API calls later
+        this.mockPlayers = {
+            'lebron james': {
+                name: 'LeBron James',
+                team: 'Los Angeles Lakers',
+                position: 'Small Forward',
+                image: 'https://via.placeholder.com/200x200/667eea/ffffff?text=LeBron+James'
+=======
         this.playerCache = new Map(); // Cache API results
         this.strikes = 0;
         this.maxStrikes = 3;
@@ -37,6 +47,12 @@ class SportsChainGame {
         });
         
         this.updateDisplay();
+<<<<<<< HEAD
+    }
+    
+    handleSubmit() {
+        const input = this.playerInput.value.trim().toLowerCase();
+=======
         this.updateHint();
         this.updateStrikes();
     }
@@ -54,6 +70,7 @@ class SportsChainGame {
     
     async handleSubmit() {
         const input = this.playerInput.value.trim();
+>>>>>>> feat/api
         
         if (!input) {
             this.showMessage('Please enter a player name!', 'error');
@@ -62,7 +79,11 @@ class SportsChainGame {
         
         // Check if this is the first player
         if (this.chain.length === 0) {
+<<<<<<< HEAD
+            this.addPlayer(input);
+=======
             await this.addPlayer(input);
+>>>>>>> feat/api
             return;
         }
         
@@ -74,6 +95,34 @@ class SportsChainGame {
         const inputFirstLetter = inputFirstName.charAt(0).toLowerCase();
         
         if (inputFirstLetter !== requiredLetter) {
+<<<<<<< HEAD
+            this.showMessage(`The player's first name must start with "${requiredLetter.toUpperCase()}"!`, 'error');
+            return;
+        }
+        
+        this.addPlayer(input);
+    }
+    
+    addPlayer(input) {
+        // Find player in our mock data
+        const playerKey = Object.keys(this.mockPlayers).find(key => 
+            key.includes(input) || input.includes(key)
+        );
+        
+        if (!playerKey) {
+            this.showMessage('Player not found! Try a different name.', 'error');
+            return;
+        }
+        
+        const player = this.mockPlayers[playerKey];
+        
+        // Check if player is already in the chain
+        if (this.chain.some(p => p.name === player.name)) {
+            this.showMessage('This player is already in the chain!', 'error');
+            return;
+        }
+        
+=======
             this.strike(`The player's first name must start with "${requiredLetter.toUpperCase()}"!`);
             return;
         }
@@ -192,7 +241,7 @@ class SportsChainGame {
         this.playerInput.value = '';
         this.updateHint();
     }
-    
+
     displayPlayer(player) {
         this.playerDisplay.style.display = 'block';
         this.playerName.textContent = player.name;
@@ -211,13 +260,16 @@ class SportsChainGame {
     updateDisplay() {
         this.chainLength.textContent = this.chain.length;
         this.lastLetterDisplay.textContent = this.lastLetter ? this.lastLetter.toUpperCase() : '-';
-        
         // Update chain history
         this.chainList.innerHTML = '';
         this.chain.forEach((player, index) => {
             const chainItem = document.createElement('div');
             chainItem.className = 'chain-item';
+<<<<<<< HEAD
+            chainItem.textContent = `${index + 1}. ${player.name}`;
+=======
             chainItem.textContent = `${index + 1}. ${player.name} (${player.sport})`;
+>>>>>>> feat/api
             this.chainList.appendChild(chainItem);
         });
     }
@@ -250,6 +302,9 @@ class SportsChainGame {
             this.message.style.display = 'none';
         }, 3000);
     }
+}
+
+// Initialize the game when the page loads
     
     strike(msg) {
         this.strikes++;
@@ -282,6 +337,7 @@ class SportsChainGame {
     }
 }
 
+>>>>>>> feat/api
 document.addEventListener('DOMContentLoaded', () => {
     new SportsChainGame();
 }); 
