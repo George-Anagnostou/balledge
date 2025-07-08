@@ -148,7 +148,7 @@ class SportsChainGame {
                 const player = data.data[0]; // Get first match
                 return {
                     name: `${player.first_name} ${player.last_name}`,
-                    team: player.team ? player.team.name : 'Unknown Team',
+                    team: player.team ? player.team.full_name : 'Unknown Team',
                     position: player.position || 'Unknown Position',
                     sport: this.getSportDisplayName(sport),
                     image: this.getPlayerImage(player.first_name, player.last_name, sport)
@@ -194,17 +194,14 @@ class SportsChainGame {
     }
     
     displayPlayer(player) {
-        this.playerDisplay.style.display = 'block';
         this.playerName.textContent = player.name;
         this.playerTeam.textContent = player.team;
-        this.playerPosition.textContent = `${player.position} (${player.sport})`;
+        this.playerPosition.textContent = `${player.position} - ${player.sport}`;
         if (player.image) {
             this.playerImage.src = player.image;
-            this.playerImage.style.display = 'block';
             this.placeholder.style.display = 'none';
         } else {
             this.playerImage.style.display = 'none';
-            this.placeholder.style.display = 'block';
         }
     }
     

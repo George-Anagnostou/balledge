@@ -104,10 +104,6 @@ header h1 {
     font-style: italic;
 }
 
-.player-display {
-    margin: 30px 0;
-}
-
 .player-card {
     display: flex;
     align-items: center;
@@ -265,8 +261,8 @@ header h1 {
     }
     
     .player-image {
-        width: 150px;
-        height: 150px;
+        width: 200px;
+        height: 200px;
     }
     
     .game-stats {
@@ -431,19 +427,19 @@ header h1 {
 }
 
 .player-image-container {
-    flex-shrink: 0;
-}
-
-.player-image-container img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
+    width: 200px;
+    height: 200px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .placeholder {
-    width: 100px;
-    height: 100px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     background: linear-gradient(135deg, #667eea, #764ba2);
     display: flex;
@@ -549,4 +545,33 @@ header h1 {
     .player-input-group {
         flex-direction: column;
     }
-} 
+}
+
+.game-columns {
+    display: flex;
+    gap: 32px;
+}
+.left-column {
+    flex: 1 1 0;
+    /* min-width: 220px; */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.right-column {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    justify-content: flex-start;
+}
+
+@media (max-width: 500px) {
+    .game-columns {
+        flex-direction: column;
+        gap: 18px;
+    }
+    .left-column, .right-column {
+        min-width: 0;
+    }
+}
